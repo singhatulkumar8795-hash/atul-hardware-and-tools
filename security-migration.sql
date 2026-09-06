@@ -14,7 +14,7 @@ drop policy if exists "admin can read orders" on public.orders;
 drop policy if exists "admin can update order status" on public.orders;
 
 create policy "public can read active products" on public.products
-  for select to anon, authenticated using (active = true);
+  for select to public using (active = true);
 
 create policy "admin can create products" on public.products
   for insert to authenticated with check (true);
@@ -26,7 +26,7 @@ create policy "admin can read orders" on public.orders
   for select to authenticated using (true);
 
 create policy "public can create COD orders" on public.orders
-  for insert to anon, authenticated with check (true);
+  for insert to public with check (true);
 
 create policy "admin can update order status" on public.orders
   for update to authenticated using (true) with check (true);

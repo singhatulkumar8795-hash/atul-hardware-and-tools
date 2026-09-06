@@ -144,7 +144,7 @@ function renderAdminOrders() {
   document.getElementById("adminPendingCount").textContent = pending;
   document.getElementById("adminSalesTotal").textContent = `₹${sales.toLocaleString("en-IN")}`;
   panel.innerHTML = orders.length ? orders.map((order) => `
-    <div class="admin-order-row"><div><strong>#${order.id}</strong><small>${order.customer.name} · ${order.customer.phone}</small><small>${addressText(order.customer.address)}</small></div><div><b>₹${order.total.toLocaleString("en-IN")}</b><select class="status-select" data-order-status="${order.id}">${["Order received", "Packed", "Out for delivery", "Delivered", "Cancelled"].map((status) => `<option ${status === order.status ? "selected" : ""}>${status}</option>`).join("")}</select></div></div>
+    <div class="admin-order-row"><div><strong>#${order.id}</strong><small>${order.customer.name} · ${order.customer.phone}</small><small>${addressText(order.customer.address)}</small></div><div><b>₹${order.total.toLocaleString("en-IN")}</b><select class="status-select" data-order-status="${order.id}">${["Order received", "Confirmed", "Packed", "Out for delivery", "Delivered", "Cancelled"].map((status) => `<option ${status === order.status ? "selected" : ""}>${status}</option>`).join("")}</select></div></div>
   `).join("") : `<div class="orders-empty"><i data-lucide="package-open"></i><p>No COD orders yet.</p></div>`;
   lucide.createIcons();
   document.querySelectorAll("[data-order-status]").forEach((select) => select.addEventListener("change", async () => {

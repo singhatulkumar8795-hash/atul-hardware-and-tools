@@ -47,6 +47,9 @@ window.atulCloud = {
         category: product.category,
         price: product.price,
         old_price: product.old,
+        quantity: product.quantity,
+        description: product.description || null,
+        specification: product.specification || null,
         emoji: product.emoji,
         color: product.color || "green",
         image: product.image || null,
@@ -63,6 +66,9 @@ window.atulCloud = {
         category: product.category,
         price: product.price,
         old_price: product.old,
+        quantity: product.quantity,
+        description: product.description || null,
+        specification: product.specification || null,
         emoji: product.emoji,
         image: product.image || null
       })
@@ -84,7 +90,7 @@ window.atulCloud = {
     });
   },
   async insertOrder(order) {
-    const [saved] = await supabaseRequest("orders", {
+    const saved = await supabaseRequest("rpc/create_cod_order", {
       method: "POST",
       body: JSON.stringify({
         order_number: order.id,

@@ -53,7 +53,7 @@ async function loadCloudData() {
     if (cloudProducts.length) {
       products = cloudProducts.map((product) => ({
         id: product.id, name: product.name, category: product.category,
-        price: product.price, old: product.old_price, emoji: product.emoji, color: product.color, image: product.image
+        price: product.price, old: product.old_price, quantity: product.quantity, description: product.description, specification: product.specification, emoji: product.emoji, color: product.color, image: product.image
       }));
       localStorage.setItem("atulProducts", JSON.stringify(products));
       renderProducts();
@@ -80,32 +80,51 @@ function renderAdminProducts() {
       <input id="productName" required placeholder="Product name" />
       <input id="productCategory" required placeholder="Category" />
       <input id="productPrice" required type="number" min="1" placeholder="Price (₹)" />
-      <input id="productEmoji" required maxlength="2" placeholder="Emoji" />
-      <input id="productImage" type="url" placeholder="Image URL (optional)" />
+      <input id="productOldPrice" type="number" min="1" placeholder="MRP / old price (₹)" />
+      <input id="productQuantity" required type="number" min="0" placeholder="Product quantity / stock" />
+      <input id="productImage" type="url" placeholder="Product photo URL" />
+      <textarea id="productDescription" required placeholder="Product description"></textarea>
+      <textarea id="productSpecification" required placeholder="Product specification"></textarea>
+      <input id="productEmoji" maxlength="2" placeholder="Emoji (optional)" />
       <button class="button button-primary" type="submit">Add product</button>
     </form>
     <div class="admin-product-list">${products.map((product) => `
-      <div class="admin-product-row"><span>${product.emoji}</span><div><strong>${product.name}</strong><small>${product.category} · ₹${product.price.toLocaleString("en-IN")}</small></div><button data-admin-edit="${product.id}" aria-label="Edit product"><i data-lucide="pencil"></i></button><button data-admin-remove="${product.id}" aria-label="Delete product"><i data-lucide="trash-2"></i></button></div>
+      <div class="admin-product-row"><span>${product.image ? `<img src="${product.image}" alt="">` : product.emoji}</span><div><strong>${product.name}</strong><small>${product.category} · ₹${product.price.toLocaleString("en-IN")} · Stock: ${product.quantity ?? 0}</small></div><button data-admin-edit="${product.id}" aria-label="Edit product"><i data-lucide="pencil"></i></button><button data-admin-remove="${product.id}" aria-label="Delete product"><i data-lucide="trash-2"></i></button></div>
     `).join("")}</div>`;
-  document.getElementById("productForm").addEventListener("submit", (event) => {
+  document.getElementById("productForm").addEventListener("submit", async (event) => {
     event.preventDefault();
+    const submitButton = event.currentTarget.querySelector("button[type=\"submit\"]");
+    submitButton.disabled = true;
+    submitButton.textContent = "Saving...";
     const product = {
       id: Date.now(),
       name: document.getElementById("productName").value.trim(),
       category: document.getElementById("productCategory").value.trim(),
       price: Number(document.getElementById("productPrice").value),
-      old: Number(document.getElementById("productPrice").value),
-      emoji: document.getElementById("productEmoji").value || "🔧",
+      old: Number(document.getElementById("productOldPrice").value) || Number(document.getElementById("productPrice").value),
+      quantity: Number(document.getElementById("productQuantity").value),
+      description: document.getElementById("productDescription").value.trim(),
+      specification: document.getElementById("productSpecification").value.trim(),
+      emoji: document.getElementById("productEmoji").value.trim() || "🔧",
       color: "green",
       image: document.getElementById("productImage").value.trim()
     };
-    products.push(product);
-    if (cloudMode) window.atulCloud.insertProduct(product).then((saved) => {
-      product.id = saved.id;
+    try {
+      if (cloudMode) {
+        const saved = await window.atulCloud.insertProduct(product);
+        product.id = saved.id;
+      }
+      products.push(product);
       saveProducts();
-    }).catch((error) => console.warn("Product cloud save failed.", error.message));
-    saveProducts();
-    showToast("Product added");
+      event.currentTarget.reset();
+      showToast(cloudMode ? "Product saved to cloud" : "Product saved on this device");
+    } catch (error) {
+      console.error("Product save failed.", error);
+      showToast("Product could not be saved. Check admin access.");
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = "Add product";
+    }
   });
   document.querySelectorAll("[data-admin-edit]").forEach((button) => button.addEventListener("click", () => {
     const product = products.find((item) => item.id === Number(button.dataset.adminEdit));
@@ -347,6 +366,9 @@ document.addEventListener("click", (event) => {
       <small class="detail-category">${product.category}</small>
       <h2>${product.name}</h2>
       <p class="detail-copy">Reliable quality from Atul Hardware and Tools. Suitable for professional work, workshop use and everyday repairs.</p>
+      <p class="detail-copy">${product.description || "Quality tool for workshop and everyday use."}</p>
+      <p class="detail-copy"><strong>Specification:</strong> ${product.specification || "Details available from the shop."}</p>
+      <p class="detail-copy"><strong>Available quantity:</strong> ${product.quantity ?? 0}</p>
       <strong class="detail-price">₹${product.price.toLocaleString("en-IN")}</strong>
       ${product.old ? `<span class="old-price">₹${product.old.toLocaleString("en-IN")}</span>` : ""}
       <button class="button button-primary detail-add" data-add="${product.id}">Add to cart</button>`;

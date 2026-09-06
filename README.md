@@ -35,6 +35,7 @@ The storefront works locally with browser storage and can sync shared products a
 - Run both SQL files completely in the Supabase SQL Editor.
 - Confirm the product image column exists before adding image URLs.
 - Test admin sign-in, product editing, order status updates and sign-out.
+- Run the latest security migration before adding products; product creation now requires the authenticated admin session and reports save errors clearly.
 - Test customer profile, multiple saved addresses and COD checkout on mobile.
 - Do not place service-role keys in frontend files; only use the public anon key.
 

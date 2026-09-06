@@ -3,7 +3,7 @@ create table if not exists public.products (
   name text not null,
   category text not null,
   price integer not null check (price > 0),
-  old_price integer not null check (old_price > 0),
+  old_price integer not null check (old_price > 0 and old_price >= price),
   quantity integer not null default 0 check (quantity >= 0),
   description text not null default '',
   specification text not null default '',
@@ -31,8 +31,16 @@ alter table public.orders enable row level security;
 alter table public.products add column if not exists quantity integer not null default 0;
 alter table public.products add column if not exists description text not null default '';
 alter table public.products add column if not exists specification text not null default '';
+update public.products set quantity = greatest(quantity, 0) where quantity < 0;
+alter table public.products drop constraint if exists products_quantity_nonnegative;
+alter table public.products add constraint products_quantity_nonnegative check (quantity >= 0);
+update public.products set old_price = greatest(old_price, price) where old_price < price;
+alter table public.products drop constraint if exists products_mrp_at_least_price;
+alter table public.products add constraint products_mrp_at_least_price check (old_price >= price);
 grant usage on schema public to anon, authenticated;
 grant insert on table public.orders to anon, authenticated;
+grant select on table public.orders to authenticated;
+grant update on table public.orders to authenticated;
 grant select on table public.products to anon, authenticated;
 grant insert, update on table public.products to authenticated;
 

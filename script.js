@@ -1,12 +1,12 @@
 const defaultProducts = [
-  { id: 1, name: "Heavy Duty Kisan Khurpa", category: "Agriculture Tools", price: 249, old: 320, emoji: "🌿", color: "green", offer: "22% OFF" },
-  { id: 2, name: "Professional Claw Hammer", category: "Carpentry Tools", price: 499, old: 650, emoji: "🔨", color: "orange", offer: "BESTSELLER" },
-  { id: 3, name: "Premium Fishing Reel", category: "Fishing Tools", price: 899, old: 1100, emoji: "🎣", color: "blue", offer: "18% OFF" },
-  { id: 4, name: "Universal Car Tool Kit", category: "Car Parts", price: 1299, old: 1699, emoji: "🧰", color: "orange", offer: "24% OFF" },
-  { id: 5, name: "Steel Hand Saw 20 inch", category: "Carpentry Tools", price: 375, old: 450, emoji: "🪚", color: "orange" },
-  { id: 6, name: "Bike Chain Lubricant", category: "Motorcycle Parts", price: 199, old: 240, emoji: "🏍️", color: "green" },
-  { id: 7, name: "Diesel Fuel Filter", category: "Diesel Engine Parts", price: 580, old: 700, emoji: "⚙️", color: "blue" },
-  { id: 8, name: "Garden Pruning Secateur", category: "Agriculture Tools", price: 299, old: 380, emoji: "✂️", color: "green" }
+  { id: 1, name: "Heavy Duty Kisan Khurpa", category: "Agriculture Tools", price: 249, old: 320, quantity: 20, emoji: "🌿", color: "green", offer: "22% OFF" },
+  { id: 2, name: "Professional Claw Hammer", category: "Carpentry Tools", price: 499, old: 650, quantity: 20, emoji: "🔨", color: "orange", offer: "BESTSELLER" },
+  { id: 3, name: "Premium Fishing Reel", category: "Fishing Tools", price: 899, old: 1100, quantity: 12, emoji: "🎣", color: "blue", offer: "18% OFF" },
+  { id: 4, name: "Universal Car Tool Kit", category: "Car Parts", price: 1299, old: 1699, quantity: 10, emoji: "🧰", color: "orange", offer: "24% OFF" },
+  { id: 5, name: "Steel Hand Saw 20 inch", category: "Carpentry Tools", price: 375, old: 450, quantity: 15, emoji: "🪚", color: "orange" },
+  { id: 6, name: "Bike Chain Lubricant", category: "Motorcycle Parts", price: 199, old: 240, quantity: 25, emoji: "🏍️", color: "green" },
+  { id: 7, name: "Diesel Fuel Filter", category: "Diesel Engine Parts", price: 580, old: 700, quantity: 10, emoji: "⚙️", color: "blue" },
+  { id: 8, name: "Garden Pruning Secateur", category: "Agriculture Tools", price: 299, old: 380, quantity: 18, emoji: "✂️", color: "green" }
 ];
 let products = JSON.parse(localStorage.getItem("atulProducts") || "null") || defaultProducts;
 let cloudMode = false;
@@ -14,6 +14,21 @@ let cart = JSON.parse(localStorage.getItem("atulCart") || "[]");
 let orders = JSON.parse(localStorage.getItem("atulOrders") || "[]");
 let customer = JSON.parse(localStorage.getItem("atulCustomer") || "null");
 let activeFilter = "all";
+const productCategories = ["Agriculture Tools", "Carpentry Tools", "Fishing Tools", "Car Parts", "Motorcycle Parts", "Diesel Engine Parts"];
+function normalizeCategory(category) {
+  const value = String(category || "").trim().toLowerCase();
+  return productCategories.find((item) => item.toLowerCase() === value)
+    || productCategories.find((item) => value === item.split(" ")[0].toLowerCase())
+    || category
+    || "Other";
+}
+products = products.map((product) => ({
+  ...product,
+  category: normalizeCategory(product.category),
+  price: Number(product.price) || 0,
+  old: Math.max(Number(product.price) || 0, Number(product.old) || Number(product.price) || 0),
+  quantity: Number.isFinite(Number(product.quantity)) ? Math.max(0, Number(product.quantity)) : 10
+}));
 
 const productGrid = document.getElementById("productGrid");
 const noResults = document.getElementById("noResults");
@@ -23,7 +38,7 @@ function renderProducts() {
   const query = document.getElementById("searchInput").value.trim().toLowerCase();
   const visible = products.filter((product) => {
     const matchesFilter = activeFilter === "all" || product.category === activeFilter;
-    return matchesFilter && (!query || `${product.name} ${product.category}`.toLowerCase().includes(query));
+    return matchesFilter && (!query || `${product.name} ${normalizeCategory(product.category)}`.toLowerCase().includes(query));
   });
   productGrid.innerHTML = visible.map((product) => `
     <article class="product-card">
@@ -38,12 +53,37 @@ function renderProducts() {
     </article>
   `).join("");
   noResults.style.display = visible.length ? "none" : "block";
+  renderCategoryCounts();
+}
+
+function renderCategoryCounts() {
+  document.querySelectorAll("[data-category-count]").forEach((element) => {
+    const category = element.dataset.categoryCount;
+    const count = products.filter((product) => product.category === category).length;
+    element.textContent = `${count} ${count === 1 ? "product" : "products"}`;
+  });
+}
+
+function reconcileCart() {
+  cart = cart.reduce((items, item) => {
+    const product = products.find((candidate) => String(candidate.id) === String(item.id));
+    if (!product || product.quantity <= 0) return items;
+    const quantity = Math.min(Math.max(1, Number(item.quantity) || 1), product.quantity);
+    items.push({ ...product, quantity });
+    return items;
+  }, []);
+}
+
+function getProductStock(productId) {
+  return products.find((product) => String(product.id) === String(productId))?.quantity ?? 0;
 }
 
 function saveProducts() {
   localStorage.setItem("atulProducts", JSON.stringify(products));
+  reconcileCart();
   renderProducts();
   renderAdminProducts();
+  renderCart();
 }
 
 async function loadCloudData() {
@@ -52,12 +92,14 @@ async function loadCloudData() {
     cloudMode = true;
     if (cloudProducts.length) {
       products = cloudProducts.map((product) => ({
-        id: product.id, name: product.name, category: product.category,
-        price: product.price, old: product.old_price, quantity: product.quantity, description: product.description, specification: product.specification, emoji: product.emoji, color: product.color, image: product.image
+        id: product.id, name: product.name, category: normalizeCategory(product.category),
+        price: Number(product.price) || 0, old: Math.max(Number(product.price) || 0, Number(product.old_price) || Number(product.price) || 0), quantity: Number(product.quantity) || 0, description: product.description, specification: product.specification, emoji: product.emoji, color: product.color, image: product.image
       }));
       localStorage.setItem("atulProducts", JSON.stringify(products));
+      reconcileCart();
       renderProducts();
       renderAdminProducts();
+      renderCart();
     }
   } catch (error) {
     console.warn("Cloud sync unavailable; using local mode.", error.message);
@@ -78,7 +120,10 @@ function renderAdminProducts() {
   document.getElementById("adminProducts").innerHTML = `
     <form id="productForm" class="admin-product-form">
       <input id="productName" required placeholder="Product name" />
-      <input id="productCategory" required placeholder="Category" />
+      <select id="productCategory" required aria-label="Product category">
+        <option value="">Select category</option>
+        ${productCategories.map((category) => `<option value="${category}">${category}</option>`).join("")}
+      </select>
       <input id="productPrice" required type="number" min="1" placeholder="Price (₹)" />
       <input id="productOldPrice" type="number" min="1" placeholder="MRP / old price (₹)" />
       <input id="productQuantity" required type="number" min="0" placeholder="Product quantity / stock" />
@@ -88,20 +133,32 @@ function renderAdminProducts() {
       <input id="productEmoji" maxlength="2" placeholder="Emoji (optional)" />
       <button class="button button-primary" type="submit">Add product</button>
     </form>
-    <div class="admin-product-list">${products.map((product) => `
-      <div class="admin-product-row"><span>${product.image ? `<img src="${product.image}" alt="">` : product.emoji}</span><div><strong>${product.name}</strong><small>${product.category} · ₹${product.price.toLocaleString("en-IN")} · Stock: ${product.quantity ?? 0}</small></div><button data-admin-edit="${product.id}" aria-label="Edit product"><i data-lucide="pencil"></i></button><button data-admin-remove="${product.id}" aria-label="Delete product"><i data-lucide="trash-2"></i></button></div>
-    `).join("")}</div>`;
+    <div class="admin-product-list">${[...productCategories, "Other"].map((category) => {
+      const categoryProducts = products.filter((product) => product.category === category);
+      if (!categoryProducts.length) return "";
+      return `<section class="admin-category-group"><h3>${category}</h3>${categoryProducts.map((product) => `
+       <div class="admin-product-row"><span>${product.image ? `<img src="${product.image}" alt="">` : product.emoji}</span><div><strong>${product.name}</strong><small>₹${product.price.toLocaleString("en-IN")} · MRP ₹${product.old.toLocaleString("en-IN")} · Stock: ${product.quantity ?? 0}</small></div><button data-admin-edit="${product.id}" aria-label="Edit product"><i data-lucide="pencil"></i></button><button data-admin-remove="${product.id}" aria-label="Delete product"><i data-lucide="trash-2"></i></button></div>
+      `).join("")}</section>`;
+    }).join("")}</div>`;
   document.getElementById("productForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const submitButton = event.currentTarget.querySelector("button[type=\"submit\"]");
     submitButton.disabled = true;
     submitButton.textContent = "Saving...";
+    const price = Number(document.getElementById("productPrice").value);
+    const old = Number(document.getElementById("productOldPrice").value) || price;
+    if (old < price) {
+      showToast("MRP must be equal to or greater than price");
+      submitButton.disabled = false;
+      submitButton.textContent = "Add product";
+      return;
+    }
     const product = {
       id: Date.now(),
       name: document.getElementById("productName").value.trim(),
       category: document.getElementById("productCategory").value.trim(),
-      price: Number(document.getElementById("productPrice").value),
-      old: Number(document.getElementById("productOldPrice").value) || Number(document.getElementById("productPrice").value),
+      price,
+      old,
       quantity: Number(document.getElementById("productQuantity").value),
       description: document.getElementById("productDescription").value.trim(),
       specification: document.getElementById("productSpecification").value.trim(),
@@ -126,27 +183,52 @@ function renderAdminProducts() {
       submitButton.textContent = "Add product";
     }
   });
-  document.querySelectorAll("[data-admin-edit]").forEach((button) => button.addEventListener("click", () => {
+  document.querySelectorAll("[data-admin-edit]").forEach((button) => button.addEventListener("click", async () => {
     const product = products.find((item) => item.id === Number(button.dataset.adminEdit));
     if (!product) return;
     const name = window.prompt("Product name", product.name);
     if (name === null) return;
-    const category = window.prompt("Category", product.category);
+    const category = window.prompt(`Category (${productCategories.join(", ")})`, product.category);
     if (category === null) return;
     const priceText = window.prompt("Price (₹)", String(product.price));
-    if (priceText === null || !Number(priceText)) return;
+    if (priceText === null || !Number(priceText) || Number(priceText) <= 0) return showToast("Enter a valid price");
+    const oldText = window.prompt("MRP / old price (₹)", String(product.old || priceText));
+    if (oldText === null || !Number(oldText) || Number(oldText) < Number(priceText)) return showToast("MRP must be equal to or greater than price");
+    const quantityText = window.prompt("Quantity / stock", String(product.quantity ?? 0));
+    if (quantityText === null || !/^\d+$/.test(quantityText)) return showToast("Enter a valid quantity");
+    const description = window.prompt("Description", product.description || "");
+    if (description === null) return;
+    const specification = window.prompt("Specification", product.specification || "");
+    if (specification === null) return;
     const image = window.prompt("Image URL (optional)", product.image || "");
-    product.name = name.trim();
-    product.category = category.trim();
-    product.price = Number(priceText);
-    product.old = Number(priceText);
-    product.image = image.trim();
-    if (cloudMode) window.atulCloud.updateProduct(product).catch((error) => console.warn("Product cloud update failed.", error.message));
-    saveProducts();
-    showToast("Product updated");
+    if (image === null) return;
+    const emoji = window.prompt("Emoji (optional)", product.emoji || "🔧");
+    if (emoji === null) return;
+    const updatedProduct = {
+      ...product,
+      name: name.trim(),
+      category: normalizeCategory(category),
+      price: Number(priceText),
+      old: Number(oldText),
+      quantity: Number(quantityText),
+      description: description.trim(),
+      specification: specification.trim(),
+      image: image.trim(),
+      emoji: emoji.trim() || "🔧"
+    };
+    try {
+      if (cloudMode) await window.atulCloud.updateProduct(updatedProduct);
+      products = products.map((item) => item.id === updatedProduct.id ? updatedProduct : item);
+      saveProducts();
+      showToast("Product updated");
+    } catch (error) {
+      showToast("Product could not be updated. Check admin access.");
+    }
   }));
   document.querySelectorAll("[data-admin-remove]").forEach((button) => button.addEventListener("click", () => {
     const productId = Number(button.dataset.adminRemove);
+    const product = products.find((item) => item.id === productId);
+    if (!product || !window.confirm(`Delete "${product.name}"? This removes it from the shop.`)) return;
     products = products.filter((product) => product.id !== productId);
     if (cloudMode) window.atulCloud.deleteProduct(productId).catch((error) => console.warn("Product cloud delete failed.", error.message));
     saveProducts();
@@ -186,6 +268,7 @@ function showToast(message) {
 }
 
 function renderCart() {
+  reconcileCart();
   const count = cart.reduce((total, item) => total + item.quantity, 0);
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   document.getElementById("cartCount").textContent = count;
@@ -194,7 +277,7 @@ function renderCart() {
   document.getElementById("cartItems").innerHTML = cart.map((item) => `
     <div class="cart-row">
       <div class="cart-row-image">${item.emoji}</div>
-      <div><h4>${item.name}</h4><p>₹${item.price.toLocaleString("en-IN")} each</p><div class="quantity-control"><button data-quantity="${item.id}" data-change="-1" aria-label="Decrease quantity">−</button><b>${item.quantity}</b><button data-quantity="${item.id}" data-change="1" aria-label="Increase quantity">+</button><button class="remove-item" data-remove="${item.id}">Remove</button></div></div>
+      <div><h4>${item.name}</h4><p>₹${item.price.toLocaleString("en-IN")} each · ${getProductStock(item.id)} in stock</p><div class="quantity-control"><button data-quantity="${item.id}" data-change="-1" aria-label="Decrease quantity">−</button><b>${item.quantity}</b><button data-quantity="${item.id}" data-change="1" aria-label="Increase quantity">+</button><button class="remove-item" data-remove="${item.id}">Remove</button></div></div>
     </div>
   `).join("");
   document.getElementById("cartEmpty").style.display = cart.length ? "none" : "block";
@@ -214,7 +297,7 @@ function renderOrders() {
       <div class="order-card">
         <div><strong>Order #${order.id}</strong><small>${order.date}</small></div>
         <span class="order-status">${order.status}</span>
-        <p>${order.items.map((item) => `${item.name} × ${item.quantity}`).join(", ")}</p>
+        <p>${order.items.map((item) => `${item.name} × ${item.quantity}${item.price ? ` (₹${Number(item.price).toLocaleString("en-IN")} each)` : ""}`).join(", ")}</p>
         <b>₹${order.total.toLocaleString("en-IN")}</b>
       </div>
     `).join("");
@@ -332,8 +415,11 @@ function renderCheckoutAddresses() {
 
 async function lookupPincode(prefix) {
   const pincode = document.getElementById(`${prefix}Pincode`).value.trim();
-  if (!/^\d{6}$/.test(pincode)) return;
-  const message = prefix === "profile" ? document.getElementById("pinMessage") : null;
+  const message = document.getElementById(`${prefix}PinMessage`);
+  if (!/^\d{6}$/.test(pincode)) {
+    if (message) message.textContent = "Enter a valid 6-digit PIN code.";
+    return;
+  }
   if (message) message.textContent = "Finding district and state...";
   try {
     const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
@@ -345,8 +431,17 @@ async function lookupPincode(prefix) {
     if (!document.getElementById(`${prefix}Village`).value) document.getElementById(`${prefix}Village`).value = office.Block || office.Name || "";
     if (message) message.textContent = "District and state filled from PIN.";
   } catch (error) {
-    if (message) message.textContent = "PIN not found. Please enter district and state manually.";
+    if (message) message.textContent = "PIN not found. Please check the 6-digit PIN or enter district and state manually.";
   }
+}
+
+function validatePincode(prefix) {
+  const input = document.getElementById(`${prefix}Pincode`);
+  const message = document.getElementById(`${prefix}PinMessage`);
+  const valid = /^\d{6}$/.test(input.value.trim());
+  if (message) message.textContent = valid ? "" : "Enter a valid 6-digit PIN code.";
+  if (!valid) input.focus();
+  return valid;
 }
 
 function setFilter(category) {
@@ -365,13 +460,13 @@ document.addEventListener("click", (event) => {
       <div class="detail-image ${product.color}">${product.image ? `<img src="${product.image}" alt="${product.name}">` : product.emoji}</div>
       <small class="detail-category">${product.category}</small>
       <h2>${product.name}</h2>
-      <p class="detail-copy">Reliable quality from Atul Hardware and Tools. Suitable for professional work, workshop use and everyday repairs.</p>
+      <p class="detail-copy">${customer?.name ? `Hi ${customer.name.split(" ")[0]}, this ${product.category.toLowerCase()} pick is ready for your next job.` : `A dependable ${product.category.toLowerCase()} choice from Atul Hardware and Tools.`}</p>
       <p class="detail-copy">${product.description || "Quality tool for workshop and everyday use."}</p>
       <p class="detail-copy"><strong>Specification:</strong> ${product.specification || "Details available from the shop."}</p>
       <p class="detail-copy"><strong>Available quantity:</strong> ${product.quantity ?? 0}</p>
       <strong class="detail-price">₹${product.price.toLocaleString("en-IN")}</strong>
       ${product.old ? `<span class="old-price">₹${product.old.toLocaleString("en-IN")}</span>` : ""}
-      <button class="button button-primary detail-add" data-add="${product.id}">Add to cart</button>`;
+      <button class="button button-primary detail-add" data-add="${product.id}" ${product.quantity <= 0 ? "disabled" : ""}>${product.quantity <= 0 ? "Out of stock" : "Add to cart"}</button>`;
     openModal("productModal");
     lucide.createIcons();
     return;
@@ -379,8 +474,18 @@ document.addEventListener("click", (event) => {
   const addButton = event.target.closest("[data-add]");
   if (addButton) {
     const product = products.find((item) => item.id === Number(addButton.dataset.add));
+    if (!product || product.quantity <= 0) {
+      showToast("This product is currently out of stock");
+      return;
+    }
     const existing = cart.find((item) => item.id === product.id);
-    if (existing) existing.quantity += 1;
+    if (existing) {
+      if (existing.quantity >= product.quantity) {
+        showToast(`Only ${product.quantity} available`);
+        return;
+      }
+      existing.quantity += 1;
+    }
     else cart.push({ ...product, quantity: 1 });
     renderCart();
     showToast(`${product.name} added to your cart`);
@@ -397,7 +502,12 @@ document.addEventListener("click", (event) => {
   if (quantityButton) {
     const item = cart.find((cartItem) => cartItem.id === Number(quantityButton.dataset.quantity));
     if (item) {
-      item.quantity += Number(quantityButton.dataset.change);
+      const nextQuantity = item.quantity + Number(quantityButton.dataset.change);
+      if (nextQuantity > getProductStock(item.id)) {
+        showToast(`Only ${getProductStock(item.id)} available`);
+        return;
+      }
+      item.quantity = nextQuantity;
       if (item.quantity <= 0) cart = cart.filter((cartItem) => cartItem.id !== item.id);
       renderCart();
     }
@@ -429,7 +539,18 @@ document.getElementById("loginBtn").addEventListener("click", () => {
 });
 document.getElementById("newAddressBtn").addEventListener("click", clearAddressForm);
 document.getElementById("profilePincode").addEventListener("blur", () => lookupPincode("profile"));
+document.getElementById("loginPincode").addEventListener("blur", () => lookupPincode("login"));
 document.getElementById("customerPincode").addEventListener("blur", () => lookupPincode("customer"));
+["profile", "login", "customer"].forEach((prefix) => {
+  document.getElementById(`${prefix}Pincode`).addEventListener("input", (event) => {
+    const message = document.getElementById(`${prefix}PinMessage`);
+    if (message && event.target.value && !/^\d{6}$/.test(event.target.value.trim())) {
+      message.textContent = "Enter a valid 6-digit PIN code.";
+    } else if (message) {
+      message.textContent = "";
+    }
+  });
+});
 document.getElementById("checkoutAddressSelect").addEventListener("change", (event) => {
   const address = customer?.addresses?.find((item) => item.id === Number(event.target.value));
   fillCheckoutAddress(address);
@@ -460,6 +581,7 @@ document.addEventListener("click", (event) => {
   }
   const deleteButton = event.target.closest("[data-delete-address]");
   if (deleteButton) {
+    if (!window.confirm("Delete this saved address?")) return;
     customer.addresses = customer.addresses.filter((item) => item.id !== Number(deleteButton.dataset.deleteAddress));
     customer.defaultAddressId = customer.addresses[0]?.id || null;
     customer.address = customer.addresses[0] || null;
@@ -510,6 +632,7 @@ document.querySelectorAll("[data-close]").forEach((button) => button.addEventLis
 loginModal.addEventListener("click", (event) => { if (event.target === loginModal) loginModal.classList.remove("open"); });
 document.getElementById("loginForm").addEventListener("submit", (event) => {
   event.preventDefault();
+  if (!validatePincode("login")) return;
   customer = {
     name: document.getElementById("loginName").value.trim(),
     phone: document.getElementById("loginPhone").value,
@@ -523,6 +646,7 @@ document.getElementById("loginForm").addEventListener("submit", (event) => {
 });
 document.getElementById("profileForm").addEventListener("submit", (event) => {
   event.preventDefault();
+  if (!validatePincode("profile")) return;
   customer = {
     name: document.getElementById("profileName").value.trim(),
     phone: document.getElementById("profilePhone").value,
@@ -557,13 +681,27 @@ document.getElementById("checkoutBtn").addEventListener("click", (event) => {
 });
 document.getElementById("checkoutForm").addEventListener("submit", async (event) => {
   event.preventDefault();
+  reconcileCart();
+  if (!cart.length) {
+    showToast("Your cart is empty or items are out of stock");
+    closeModal("checkoutModal");
+    return;
+  }
+  if (!validatePincode("customer")) return;
+  const unavailable = cart.find((item) => item.quantity > getProductStock(item.id));
+  if (unavailable) {
+    renderCart();
+    showToast(`${unavailable.name} stock changed. Please review your cart.`);
+    closeModal("checkoutModal");
+    return;
+  }
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const order = {
     id: String(Date.now()).slice(-6),
     date: new Date().toLocaleDateString("en-IN"),
     status: "Order received",
     total,
-    items: cart.map(({ id, name, quantity }) => ({ id, name, quantity })),
+    items: cart.map(({ id, name, price, quantity }) => ({ id, name, price, quantity })),
     customer: {
       name: document.getElementById("customerName").value,
       phone: document.getElementById("customerPhone").value,
@@ -582,6 +720,13 @@ document.getElementById("checkoutForm").addEventListener("submit", async (event)
     console.warn("Order cloud save failed.", error.message);
   }
   localStorage.setItem("atulOrders", JSON.stringify(orders));
+  products = products.map((product) => {
+    const ordered = order.items.find((item) => String(item.id) === String(product.id));
+    return ordered ? { ...product, quantity: Math.max(0, product.quantity - ordered.quantity) } : product;
+  });
+  localStorage.setItem("atulProducts", JSON.stringify(products));
+  renderProducts();
+  renderAdminProducts();
   const savedAddresses = customer?.phone === order.customer.phone ? customer.addresses || [] : [];
   const matchingAddress = savedAddresses.find((address) => addressText(address) === addressText(order.customer.address));
   customer = {
@@ -601,7 +746,7 @@ document.getElementById("checkoutForm").addEventListener("submit", async (event)
   toggleCart(false);
   renderOrders();
   document.getElementById("successMessage").textContent = `Order #${order.id} is confirmed. Cash on delivery selected.`;
-  document.getElementById("successSummary").innerHTML = `<strong>₹${order.total.toLocaleString("en-IN")}</strong><small>${order.items.map((item) => `${item.name} × ${item.quantity}`).join(", ")}</small><small>${addressText(order.customer.address)}</small>`;
+  document.getElementById("successSummary").innerHTML = `<strong>₹${order.total.toLocaleString("en-IN")}</strong><small>${order.items.map((item) => `${item.name} × ${item.quantity}${item.price ? ` (₹${Number(item.price).toLocaleString("en-IN")} each)` : ""}`).join(", ")}</small><small>${addressText(order.customer.address)}</small>`;
   document.getElementById("successWhatsapp").onclick = () => {
     const message = `Hello Atul Hardware and Tools, my COD order #${order.id} is confirmed. Total ₹${order.total}. Delivery address: ${addressText(order.customer.address)}`;
     window.open(`https://wa.me/918795484365?text=${encodeURIComponent(message)}`, "_blank");

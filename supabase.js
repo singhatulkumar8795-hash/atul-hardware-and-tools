@@ -48,8 +48,8 @@ window.atulCloud = {
         price: product.price,
         old_price: product.old,
         quantity: product.quantity,
-        description: product.description || null,
-        specification: product.specification || null,
+        description: product.description || "",
+        specification: product.specification || "",
         emoji: product.emoji,
         color: product.color || "green",
         image: product.image || null,
@@ -67,8 +67,8 @@ window.atulCloud = {
         price: product.price,
         old_price: product.old,
         quantity: product.quantity,
-        description: product.description || null,
-        specification: product.specification || null,
+        description: product.description || "",
+        specification: product.specification || "",
         emoji: product.emoji,
         image: product.image || null
       })

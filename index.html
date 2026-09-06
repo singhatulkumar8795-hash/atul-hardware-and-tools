@@ -47,7 +47,19 @@
     .detail-copy { color: #657169; font-size: 13px; line-height: 1.55; }
     .detail-price { display: inline-block; font: 700 21px Manrope; margin: 8px 0 16px; }
     .detail-add { width: 100%; }
-    @media (max-width: 620px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
+    .admin-modal { width: min(760px, calc(100% - 28px)) !important; max-width: 760px; }
+    .admin-product-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; text-align: left; margin: 18px 0 22px; }
+    .admin-product-form input, .admin-product-form textarea { width: 100%; min-height: 44px; padding: 11px 12px; border: 1px solid #dbe4dc; border-radius: 7px; font: inherit; color: #17231d; background: #fff; }
+    .admin-product-form textarea { min-height: 105px; resize: vertical; line-height: 1.45; }
+    .admin-product-form input:focus, .admin-product-form textarea:focus { outline: 2px solid #b9dfc4; border-color: #1c6b4b; }
+    .admin-product-form textarea:nth-of-type(1), .admin-product-form textarea:nth-of-type(2), .admin-product-form button { grid-column: 1 / -1; }
+    .admin-product-form button { min-height: 46px; }
+    @media (max-width: 620px) {
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      .admin-modal { width: calc(100% - 20px); }
+      .admin-product-form { grid-template-columns: 1fr; gap: 10px; }
+      .admin-product-form textarea:nth-of-type(1), .admin-product-form textarea:nth-of-type(2), .admin-product-form button { grid-column: auto; }
+    }
   </style>
 </head>
 <body>

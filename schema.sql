@@ -25,6 +25,9 @@ create table if not exists public.orders (
 
 alter table public.products enable row level security;
 alter table public.orders enable row level security;
+grant usage on schema public to anon, authenticated;
+grant insert on table public.orders to anon, authenticated;
+grant select on table public.products to anon, authenticated;
 
 drop policy if exists "public can read active products" on public.products;
 drop policy if exists "public can create products" on public.products;

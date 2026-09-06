@@ -559,7 +559,6 @@ document.getElementById("checkoutForm").addEventListener("submit", async (event)
   } catch (error) {
     console.warn("Order cloud save failed.", error.message);
   }
-  }
   localStorage.setItem("atulOrders", JSON.stringify(orders));
   const savedAddresses = customer?.phone === order.customer.phone ? customer.addresses || [] : [];
   const matchingAddress = savedAddresses.find((address) => addressText(address) === addressText(order.customer.address));

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Atul Hardware and Tools - quality agriculture, workshop, automobile and home improvement tools." />
+  <title>Atul Hardware & Tools | Purshipurwa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span><i data-lucide="badge-check"></i> Trusted tools for every job</span>
+      <span class="topbar-right"><i data-lucide="clock-3"></i> Open daily 8:00 AM – 9:00 PM <a href="tel:8795484365">Call 8795484365</a></span>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="container header-main">
+      <a class="brand" href="#">
+        <span class="brand-mark"><i data-lucide="wrench"></i></span>
+        <span><strong>Atul</strong> Hardware <small>& Tools</small></span>
+      </a>
+      <form class="search" id="searchForm">
+        <i data-lucide="search"></i>
+        <input id="searchInput" type="search" placeholder="Search tools, parts & more..." aria-label="Search products" />
+        <button type="submit">Search</button>
+      </form>
+      <div class="header-actions">
+        <button class="icon-action" id="loginBtn" aria-label="Login"><i data-lucide="user-round"></i><span>Login</span></button>
+        <button class="icon-action" id="ordersBtn" aria-label="My orders"><i data-lucide="package-search"></i><span>Orders</span></button>
+        <button class="icon-action cart-action" id="cartBtn" aria-label="Shopping cart"><i data-lucide="shopping-cart"></i><span>Cart</span><b id="cartCount">0</b></button>
+      </div>
+    </div>
+    <nav class="category-nav">
+      <div class="container nav-inner">
+        <button class="category-menu"><i data-lucide="menu"></i> All Categories</button>
+        <a href="#products" data-category="Agriculture Tools">Agriculture Tools</a>
+        <a href="#products" data-category="Carpentry Tools">Carpentry Tools</a>
+        <a href="#products" data-category="Fishing Tools">Fishing Tools</a>
+        <a href="#products" data-category="Car Parts">Car Parts</a>
+        <a href="#products" data-category="Motorcycle Parts">Motorcycle Parts</a>
+        <a href="#products" data-category="Diesel Engine Parts">Diesel Engine Parts</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero container">
+      <div class="hero-copy">
+        <p class="eyebrow">YOUR LOCAL TOOL EXPERTS</p>
+        <h1>Built for your work.<br /><em>Ready for every job.</em></h1>
+        <p class="hero-text">Quality agriculture, workshop, automobile and home improvement tools — all in one trusted place.</p>
+        <div class="hero-buttons">
+          <a class="button button-primary" href="#products">Explore products <i data-lucide="arrow-right"></i></a>
+          <a class="button button-light" href="https://wa.me/918795484365?text=Hello%20Atul%20Hardware%20and%20Tools" target="_blank"><i data-lucide="message-circle"></i> Chat on WhatsApp</a>
+        </div>
+        <div class="hero-note"><i data-lucide="map-pin"></i> Serving Purshipurwa and nearby areas</div>
+      </div>
+      <div class="hero-art">
+        <div class="sun"></div><div class="hero-circle"></div>
+        <div class="tool tool-one">🔧</div><div class="tool tool-two">🪚</div><div class="tool tool-three">⚙️</div>
+        <div class="art-label"><strong>Reliable gear.</strong><span>Honest service.</span></div>
+      </div>
+    </section>
+
+    <section class="trust-strip">
+      <div class="container trust-grid">
+        <div><span class="trust-icon"><i data-lucide="truck"></i></span><span><strong>Fast delivery</strong><small>Across nearby locations</small></span></div>
+        <div><span class="trust-icon"><i data-lucide="shield-check"></i></span><span><strong>Genuine quality</strong><small>Products you can rely on</small></span></div>
+        <div><span class="trust-icon"><i data-lucide="headphones"></i></span><span><strong>Expert support</strong><small>Call us 8 AM – 9 PM</small></span></div>
+        <div><span class="trust-icon"><i data-lucide="wallet-cards"></i></span><span><strong>Easy payments</strong><small>Pay on delivery available</small></span></div>
+      </div>
+    </section>
+
+    <section class="container section" id="categories">
+      <div class="section-heading"><div><p class="eyebrow">SHOP BY NEED</p><h2>Find the right category</h2></div><a href="#products" class="text-link">View all products <i data-lucide="arrow-up-right"></i></a></div>
+      <div class="category-grid">
+        <button class="category-card category-green" data-category="Agriculture Tools"><span class="category-emoji">🌾</span><strong>Agriculture<br />Tools</strong><small>48 products</small></button>
+        <button class="category-card category-orange" data-category="Carpentry Tools"><span class="category-emoji">🪵</span><strong>Carpentry<br />Tools</strong><small>36 products</small></button>
+        <button class="category-card category-blue" data-category="Fishing Tools"><span class="category-emoji">🎣</span><strong>Fishing<br />Tools</strong><small>24 products</small></button>
+        <button class="category-card category-red" data-category="Car Parts"><span class="category-emoji">🚗</span><strong>Car<br />Parts</strong><small>72 products</small></button>
+        <button class="category-card category-purple" data-category="Motorcycle Parts"><span class="category-emoji">🏍️</span><strong>Motorcycle<br />Parts</strong><small>61 products</small></button>
+        <button class="category-card category-teal" data-category="Diesel Engine Parts"><span class="category-emoji">⚙️</span><strong>Diesel Engine<br />Parts</strong><small>39 products</small></button>
+      </div>
+    </section>
+
+    <section class="container section" id="products">
+      <div class="section-heading product-heading"><div><p class="eyebrow">POPULAR PICKS</p><h2>Tools people trust</h2></div><div class="filter-wrap"><button class="filter-btn active" data-filter="all">All</button><button class="filter-btn" data-filter="Agriculture Tools">Agriculture</button><button class="filter-btn" data-filter="Carpentry Tools">Carpentry</button><button class="filter-btn" data-filter="Car Parts">Auto parts</button></div></div>
+      <div class="product-grid" id="productGrid"></div>
+      <p class="no-results" id="noResults">No products found. Try a different search.</p>
+    </section>
+
+    <section class="container service-banner">
+      <div><p class="eyebrow">NEED HELP CHOOSING?</p><h2>Tell us what you need.<br />We’ll find the right tool.</h2><p>Call our team for product advice, availability and local delivery.</p></div>
+      <a class="button button-dark" href="tel:8795484365"><i data-lucide="phone"></i> 8795484365</a>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="container footer-inner"><div class="brand footer-brand"><span class="brand-mark"><i data-lucide="wrench"></i></span><span><strong>Atul</strong> Hardware <small>& Tools</small></span></div><div><strong>Atul Hardware and Tools</strong><span>Purshipurwa · Open daily 8 AM – 9 PM</span></div><a href="tel:8795484365">8795484365</a></div><div class="container copyright">© 2026 Atul Hardware and Tools. Quality tools, honest service. <button id="adminBtn" class="admin-link">Admin panel</button></div></footer>
+
+  <div class="modal-backdrop" id="loginModal"><div class="modal"><button class="close-modal" data-close="loginModal"><i data-lucide="x"></i></button><span class="modal-icon"><i data-lucide="user-round"></i></span><h2>Welcome back</h2><p>Login to view orders and save your favourite tools.</p><form id="loginForm"><label>Mobile number<input id="loginPhone" type="tel" placeholder="Enter 10-digit mobile number" required pattern="[0-9]{10}" /></label><button class="button button-primary" type="submit">Continue</button></form><small class="form-message" id="loginMessage"></small></div></div>
+  <div class="modal-backdrop" id="checkoutModal"><div class="modal checkout-modal"><button class="close-modal" data-close="checkoutModal"><i data-lucide="x"></i></button><span class="modal-icon"><i data-lucide="map-pin"></i></span><h2>Delivery details</h2><p>Free demo checkout — pay on delivery.</p><form id="checkoutForm"><label>Full name<input id="customerName" required placeholder="Your name" /></label><label>Mobile number<input id="customerPhone" required type="tel" pattern="[0-9]{10}" placeholder="10-digit mobile number" /></label><label>Delivery address<textarea id="customerAddress" required rows="3" placeholder="House, village, district"></textarea></label><button class="button button-primary" type="submit">Place demo order</button></form></div></div>
+  <div class="modal-backdrop" id="ordersModal"><div class="modal orders-modal"><button class="close-modal" data-close="ordersModal"><i data-lucide="x"></i></button><span class="modal-icon"><i data-lucide="package-search"></i></span><h2>My orders</h2><div id="ordersList" class="orders-list"></div></div></div>
+  <div class="modal-backdrop" id="adminModal"><div class="modal admin-modal"><button class="close-modal" data-close="adminModal"><i data-lucide="x"></i></button><span class="modal-icon"><i data-lucide="settings-2"></i></span><h2>Store admin</h2><p>Manage products and COD orders on this device.</p><div class="admin-tabs"><button class="admin-tab active" data-admin-tab="products">Products</button><button class="admin-tab" data-admin-tab="orders">Orders</button></div><div id="adminProducts" class="admin-panel"></div><div id="adminOrders" class="admin-panel" hidden></div></div></div>
+  <aside class="cart-drawer" id="cartDrawer"><div class="drawer-head"><h2>Your cart <span id="drawerCount">(0)</span></h2><button class="close-cart" id="closeCart"><i data-lucide="x"></i></button></div><div class="cart-items" id="cartItems"></div><div class="cart-empty" id="cartEmpty"><i data-lucide="shopping-bag"></i><h3>Your cart is empty</h3><p>Add tools you need for your next job.</p></div><div class="cart-footer" id="cartFooter"><div><span>Subtotal</span><strong id="cartTotal">₹0</strong></div><a class="button button-primary" id="checkoutBtn" href="#" target="_blank">Order on WhatsApp <i data-lucide="arrow-up-right"></i></a></div></aside><div class="drawer-overlay" id="drawerOverlay"></div>
+  <div class="toast" id="toast"></div>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -4,12 +4,51 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Atul Hardware and Tools - quality agriculture, workshop, automobile and home improvement tools." />
+  <meta name="theme-color" content="#1c6b4b" />
+  <link rel="manifest" href="manifest.webmanifest" />
   <title>Atul Hardware & Tools | Purshipurwa</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .form-row label { min-width: 0; }
+    .saved-addresses { border: 1px solid #e4e9e3; border-radius: 8px; padding: 12px; margin: 4px 0 16px; text-align: left; }
+    .address-title { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 8px; }
+    .address-title button { border: 0; background: #e7f3ec; color: #1c6b4b; border-radius: 5px; padding: 7px 9px; font-weight: 700; cursor: pointer; }
+    .saved-address { border: 1px solid #e4e9e3; border-radius: 6px; padding: 9px; margin-top: 7px; }
+    .saved-address.selected { border-color: #1c6b4b; background: #f3faf4; }
+    .saved-address strong, .saved-address small { display: block; }
+    .saved-address small { color: #657169; font-size: 10px; line-height: 1.4; margin-top: 3px; }
+    .address-actions { display: flex; gap: 8px; margin-top: 7px; }
+    .address-actions button { border: 0; background: none; color: #1c6b4b; font-size: 10px; cursor: pointer; }
+    .address-actions button:last-child { color: #ad5741; }
+    .address-editor > strong { display: block; text-align: left; margin-bottom: 9px; }
+    .pin-message { display: block; color: #1c6b4b; font-size: 10px; text-align: left; margin: -5px 0 10px; }
+    .checkout-address-picker { background: #f7f9f5; border-radius: 7px; padding: 10px; margin-bottom: 12px; }
+    .success-icon { display: grid; place-items: center; width: 58px; height: 58px; margin: 0 auto 14px; border-radius: 50%; background: #dff1e4; color: #1c6b4b; }
+    .success-icon svg { width: 30px; }
+    .success-modal h2 { font-family: Manrope, sans-serif; }
+    .success-summary { display: grid; gap: 7px; text-align: left; margin: 18px 0; padding: 14px; border-radius: 8px; background: #f7f9f5; }
+    .success-summary strong { font: 700 20px Manrope; color: #1c6b4b; }
+    .success-summary small { color: #657169; line-height: 1.4; }
+    .admin-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
+    .admin-stats div { background: #f7f9f5; border-radius: 7px; padding: 10px; text-align: center; }
+    .admin-stats strong, .admin-stats small { display: block; }
+    .admin-stats strong { color: #1c6b4b; font: 700 17px Manrope; }
+    .admin-stats small { color: #657169; font-size: 10px; margin-top: 3px; }
+    .product-detail-modal { text-align: left; }
+    .detail-image { height: 190px; display: grid; place-items: center; border-radius: 9px; margin-bottom: 16px; font-size: 75px; }
+    .detail-image img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .detail-category { color: #1c6b4b; font-weight: 700; font-size: 11px; }
+    .product-detail-modal h2 { font: 700 24px Manrope; margin: 8px 0; }
+    .detail-copy { color: #657169; font-size: 13px; line-height: 1.55; }
+    .detail-price { display: inline-block; font: 700 21px Manrope; margin: 8px 0 16px; }
+    .detail-add { width: 100%; }
+    @media (max-width: 620px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
+  </style>
 </head>
 <body>
   <div class="topbar">
@@ -31,7 +70,7 @@
         <button type="submit">Search</button>
       </form>
       <div class="header-actions">
-        <button class="icon-action" id="loginBtn" aria-label="Login"><i data-lucide="user-round"></i><span>Login</span></button>
+        <button class="icon-action" id="loginBtn" aria-label="Customer profile"><i data-lucide="user-round"></i><span id="accountLabel">Login</span></button>
         <button class="icon-action" id="ordersBtn" aria-label="My orders"><i data-lucide="package-search"></i><span>Orders</span></button>
         <button class="icon-action cart-action" id="cartBtn" aria-label="Shopping cart"><i data-lucide="shopping-cart"></i><span>Cart</span><b id="cartCount">0</b></button>
       </div>
@@ -103,12 +142,17 @@
 
   <footer class="footer"><div class="container footer-inner"><div class="brand footer-brand"><span class="brand-mark"><i data-lucide="wrench"></i></span><span><strong>Atul</strong> Hardware <small>& Tools</small></span></div><div><strong>Atul Hardware and Tools</strong><span>Purshipurwa · Open daily 8 AM – 9 PM</span></div><a href="tel:8795484365">8795484365</a></div><div class="container copyright">© 2026 Atul Hardware and Tools. Quality tools, honest service. <button id="adminBtn" class="admin-link">Admin panel</button></div></footer>
 
-  <div class="modal-backdrop" id="loginModal"><div class="modal"><button class="close-modal" data-close="loginModal"><i data-lucide="x"></i></button><span class="modal-icon"><i data-lucide="user-round"></i></span><h2>Welcome back</h2><p>Login to view orders and save your favourite tools.</p><form id="loginForm"><label>Mobile number<input id="loginPhone" type="tel" placeholder="Enter 10-digit mobile number" required pattern="[0-9]{10}" /></label><button class="button button-primary" type="submit">Continue</button></form><small class="form-message" id="loginMessage"></small></div></div>
-  <div class="modal-backdrop" id="checkoutModal"><div class="modal checkout-modal"><button class="close-modal" data-close="checkoutModal"><i data-lucide="x"></i></button><span class="modal-icon"><i data-lucide="map-pin"></i></span><h2>Delivery details</h2><p>Free demo checkout — pay on delivery.</p><form id="checkoutForm"><label>Full name<input id="customerName" required placeholder="Your name" /></label><label>Mobile number<input id="customerPhone" required type="tel" pattern="[0-9]{10}" placeholder="10-digit mobile number" /></label><label>Delivery address<textarea id="customerAddress" required rows="3" placeholder="House, village, district"></textarea></label><button class="button button-primary" type="submit">Place demo order</button></form></div></div>
+  <div class="modal-backdrop" id="loginModal"><div class="modal"><button class="close-modal" data-close="loginModal"><i data-lucide="x"></i></button><span class="modal-icon"><i data-lucide="user-round"></i></span><h2>Create your profile</h2><p>Enter complete delivery details once for faster COD checkout.</p><form id="loginForm"><label>Your name<input id="loginName" type="text" placeholder="Enter your name" required /></label><label>Mobile number<input id="loginPhone" type="tel" placeholder="Enter 10-digit mobile number" required pattern="[0-9]{10}" /></label><label>House / shop no.<input id="loginHouse" required placeholder="House number, street or shop" /></label><div class="form-row"><label>Village / town<input id="loginVillage" required placeholder="Village or town" /></label><label>City<input id="loginCity" required placeholder="City" /></label></div><div class="form-row"><label>District<input id="loginDistrict" required placeholder="District" /></label><label>State<input id="loginState" required value="Uttar Pradesh" placeholder="State" /></label></div><div class="form-row"><label>PIN code<input id="loginPincode" required inputmode="numeric" pattern="[0-9]{6}" placeholder="6-digit PIN" /></label><label>Landmark<input id="loginLandmark" placeholder="Optional" /></label></div><button class="button button-primary" type="submit">Save profile</button></form><small class="form-message" id="loginMessage"></small></div></div>
+  <div class="modal-backdrop" id="profileModal"><div class="modal profile-modal"><button class="close-modal" data-close="profileModal"><i data-lucide="x"></i></button><span class="modal-icon"><i data-lucide="user-round"></i></span><h2>My profile</h2><p>Manage your details and delivery addresses.</p><form id="profileForm"><label>Your name<input id="profileName" type="text" required /></label><label>Mobile number<input id="profilePhone" type="tel" required pattern="[0-9]{10}" /></label><div class="saved-addresses"><div class="address-title"><strong>Saved addresses</strong><button type="button" id="newAddressBtn">+ Add address</button></div><div id="addressList"></div></div><div class="address-editor"><strong id="addressEditorTitle">Address details</strong><label>House / shop no.<input id="profileHouse" required placeholder="House number, street or shop" /></label><div class="form-row"><label>Village / town<input id="profileVillage" required /></label><label>City<input id="profileCity" required /></label></div><div class="form-row"><label>District<input id="profileDistrict" required /></label><label>State<input id="profileState" required value="Uttar Pradesh" /></label></div><div class="form-row"><label>PIN code<input id="profilePincode" required inputmode="numeric" pattern="[0-9]{6}" /></label><label>Landmark<input id="profileLandmark" placeholder="Optional" /></label></div><small id="pinMessage" class="pin-message"></small></div><button class="button button-primary" type="submit">Save profile & address</button></form><button class="profile-logout" id="customerLogout">Log out</button><small class="form-message" id="profileMessage"></small></div></div>
+  <div class="modal-backdrop" id="checkoutModal"><div class="modal checkout-modal"><button class="close-modal" data-close="checkoutModal"><i data-lucide="x"></i></button><span class="modal-icon"><i data-lucide="map-pin"></i></span><h2>Delivery details</h2><p>Cash on delivery available.</p><form id="checkoutForm"><label>Full name<input id="customerName" required placeholder="Your name" /></label><label>Mobile number<input id="customerPhone" required type="tel" pattern="[0-9]{10}" placeholder="10-digit mobile number" /></label><div id="checkoutAddressPicker" class="checkout-address-picker" hidden><label>Choose saved address<select id="checkoutAddressSelect"></select></label></div><label>House / shop no.<input id="customerHouse" required placeholder="House number, street or shop" /></label><div class="form-row"><label>Village / town<input id="customerVillage" required placeholder="Village or town" /></label><label>City<input id="customerCity" required placeholder="City" /></label></div><div class="form-row"><label>District<input id="customerDistrict" required placeholder="District" /></label><label>State<input id="customerState" required value="Uttar Pradesh" placeholder="State" /></label></div><div class="form-row"><label>PIN code<input id="customerPincode" required inputmode="numeric" pattern="[0-9]{6}" placeholder="6-digit PIN" /></label><label>Landmark<input id="customerLandmark" placeholder="Nearby landmark (optional)" /></label></div><button class="button button-primary" type="submit">Place COD order</button></form></div></div>
   <div class="modal-backdrop" id="ordersModal"><div class="modal orders-modal"><button class="close-modal" data-close="ordersModal"><i data-lucide="x"></i></button><span class="modal-icon"><i data-lucide="package-search"></i></span><h2>My orders</h2><div id="ordersList" class="orders-list"></div></div></div>
-  <div class="modal-backdrop" id="adminModal"><div class="modal admin-modal"><button class="close-modal" data-close="adminModal"><i data-lucide="x"></i></button><span class="modal-icon"><i data-lucide="settings-2"></i></span><h2>Store admin</h2><p>Manage products and COD orders on this device.</p><div class="admin-tabs"><button class="admin-tab active" data-admin-tab="products">Products</button><button class="admin-tab" data-admin-tab="orders">Orders</button></div><div id="adminProducts" class="admin-panel"></div><div id="adminOrders" class="admin-panel" hidden></div></div></div>
-  <aside class="cart-drawer" id="cartDrawer"><div class="drawer-head"><h2>Your cart <span id="drawerCount">(0)</span></h2><button class="close-cart" id="closeCart"><i data-lucide="x"></i></button></div><div class="cart-items" id="cartItems"></div><div class="cart-empty" id="cartEmpty"><i data-lucide="shopping-bag"></i><h3>Your cart is empty</h3><p>Add tools you need for your next job.</p></div><div class="cart-footer" id="cartFooter"><div><span>Subtotal</span><strong id="cartTotal">₹0</strong></div><a class="button button-primary" id="checkoutBtn" href="#" target="_blank">Order on WhatsApp <i data-lucide="arrow-up-right"></i></a></div></aside><div class="drawer-overlay" id="drawerOverlay"></div>
+  <div class="modal-backdrop" id="successModal"><div class="modal success-modal"><span class="success-icon"><i data-lucide="check"></i></span><h2>Order confirmed!</h2><p id="successMessage">Your COD order has been received.</p><div class="success-summary" id="successSummary"></div><button class="button button-primary" id="successWhatsapp" type="button"><i data-lucide="message-circle"></i> Confirm on WhatsApp</button><button class="profile-logout" data-close="successModal">Continue shopping</button></div></div>
+  <div class="modal-backdrop" id="productModal"><div class="modal product-detail-modal"><button class="close-modal" data-close="productModal"><i data-lucide="x"></i></button><div id="productDetail"></div></div></div>
+  <div class="modal-backdrop" id="adminLoginModal"><div class="modal"><button class="close-modal" data-close="adminLoginModal"><i data-lucide="x"></i></button><span class="modal-icon"><i data-lucide="lock-keyhole"></i></span><h2>Admin login</h2><p>Only store staff can view customer orders.</p><form id="adminLoginForm"><label>Email<input id="adminEmail" type="email" required placeholder="Store admin email" /></label><label>Password<input id="adminPassword" type="password" required placeholder="Password" /></label><button class="button button-primary" type="submit">Sign in</button></form><small class="form-message" id="adminLoginMessage"></small></div></div>
+  <div class="modal-backdrop" id="adminModal"><div class="modal admin-modal"><button class="close-modal" data-close="adminModal"><i data-lucide="x"></i></button><span class="modal-icon"><i data-lucide="settings-2"></i></span><h2>Store admin</h2><p>Manage products and COD orders on this device.</p><button class="admin-signout" id="adminSignout">Sign out</button><div class="admin-stats"><div><strong id="adminOrderCount">0</strong><small>Total orders</small></div><div><strong id="adminPendingCount">0</strong><small>Pending</small></div><div><strong id="adminSalesTotal">₹0</strong><small>Total sales</small></div></div><div class="admin-tabs"><button class="admin-tab active" data-admin-tab="products">Products</button><button class="admin-tab" data-admin-tab="orders">Orders</button></div><div id="adminProducts" class="admin-panel"></div><div id="adminOrders" class="admin-panel" hidden></div></div></div>
+  <aside class="cart-drawer" id="cartDrawer"><div class="drawer-head"><h2>Your cart <span id="drawerCount">(0)</span></h2><button class="close-cart" id="closeCart"><i data-lucide="x"></i></button></div><div class="cart-items" id="cartItems"></div><div class="cart-empty" id="cartEmpty"><i data-lucide="shopping-bag"></i><h3>Your cart is empty</h3><p>Add tools you need for your next job.</p></div><div class="cart-footer" id="cartFooter"><div><span>Subtotal</span><strong id="cartTotal">₹0</strong></div><a class="button button-primary" id="checkoutBtn" href="#" target="_blank">Place COD order <i data-lucide="arrow-right"></i></a></div></aside><div class="drawer-overlay" id="drawerOverlay"></div>
   <div class="toast" id="toast"></div>
+  <script src="supabase.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

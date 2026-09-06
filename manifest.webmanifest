@@ -1,0 +1,10 @@
+{
+  "name": "Atul Hardware and Tools",
+  "short_name": "Atul Tools",
+  "description": "Tools, parts and hardware from Atul Hardware and Tools, Purshipurwa.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1c6b4b",
+  "icons": []
+}
